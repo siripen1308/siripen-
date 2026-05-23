@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>วงล้อสุ่มกองทุนต่างประเทศ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:'Sarabun',sans-serif;
+    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; overflow-x:hidden;
+  }
+
+  header{
+    text-align:center; padding:32px 20px 12px;
+  }
+  header h1{
+    font-size:2rem; font-weight:800; color:#fff;
+    text-shadow:0 0 20px rgba(255,200,0,.6);
+    letter-spacing:1px;
+  }
+  header p{ color:#c4b5fd; font-size:1rem; margin-top:6px; }
+
+  .arena{
+    position:relative; width:340px; height:340px;
+    margin:24px auto 0;
+  }
+
+  /* pointer / arrow */
+  .pointer{
+    position:absolute; top:-18px; left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:16px solid transparent;
+    border-right:16px solid transparent;
+    border-top:34px solid #FFD700;
+    filter:drop-shadow(0 2px 6px rgba(255,215,0,.8));
+    z-index:10;
+  }
+
+  #wheel{
+    display:block;
+    border-radius:50%;
+    box-shadow:0 0 0 6px #FFD700, 0 0 40px rgba(255,215,0,.35), 0 8px 40px rgba(0,0,0,.7);
+  }
+
+  /* spin button */
+  .spin-btn{
+    display:block; margin:28px auto 0;
+    width:170px; padding:15px 0;
+    font-family:'Sarabun',sans-serif;
+    font-size:1.2rem; font-weight:700;
+    color:#1a1a2e;
+    background:linear-gradient(135deg,#FFD700,#FFA500);
+    border:none; border-radius:50px;
+    cursor:pointer;
+    box-shadow:0 4px 20px rgba(255,165,0,.5);
+    transition:transform .15s, box-shadow .15s;
+    letter-spacing:.5px;
+  }
+  .spin-btn:hover{ transform:scale(1.06); box-shadow:0 6px 28px rgba(255,165,0,.7); }
+  .spin-btn:active{ transform:scale(.97); }
+  .spin-btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+
+  /* result card */
+  .result-wrap{
+    margin:28px 20px 40px;
+    max-width:560px; width:100%;
+    opacity:0; transform:translateY(20px);
+    transition:opacity .5s, transform .5s;
+    pointer-events:none;
+  }
+  .result-wrap.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+  .result-card{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(12px);
+    border-radius:20px;
+    padding:24px 28px;
+    color:#fff;
+    text-align:center;
+  }
+  .result-card .crown{ font-size:2.2rem; margin-bottom:8px; }
+  .result-card .fund-code{
+    font-size:1.6rem; font-weight:800;
+    color:#FFD700; letter-spacing:2px;
+  }
+  .result-card .fund-full{
+    font-size:1rem; color:#c4b5fd; margin:4px 0 16px;
+  }
+  .result-card .tags{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:16px; }
+  .result-card .tag{
+    background:rgba(255,215,0,.15); border:1px solid rgba(255,215,0,.3);
+    border-radius:20px; padding:4px 14px;
+    font-size:.85rem; color:#FFD700;
+  }
+  .result-card .desc{
+    font-size:.95rem; color:#e2e8f0; line-height:1.6;
+  }
+  .result-card .metrics{
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:14px;
+  }
+  .metric{
+    background:rgba(255,255,255,.07); border-radius:12px;
+    padding:10px 18px; text-align:center;
+  }
+  .metric .mval{ font-size:1.15rem; font-weight:700; color:#4ade80; }
+  .metric .mlbl{ font-size:.78rem; color:#94a3b8; margin-top:2px; }
+
+  /* fund list */
+  .fund-list{
+    max-width:560px; width:100%; margin:0 20px 48px;
+    padding:0 20px;
+  }
+  .fund-list h2{
+    color:#c4b5fd; font-size:1.1rem; font-weight:700;
+    margin-bottom:14px; text-align:center;
+    letter-spacing:.5px;
+  }
+  .fund-item{
+    display:flex; align-items:center; gap:14px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:14px; padding:12px 16px; margin-bottom:10px;
+    cursor:pointer; transition:background .2s;
+  }
+  .fund-item:hover{ background:rgba(255,255,255,.11); }
+  .fund-dot{ width:16px; height:16px; border-radius:50%; flex-shrink:0; }
+  .fund-item-info .code{ font-weight:700; color:#fff; font-size:.95rem; }
+  .fund-item-info .name{ font-size:.82rem; color:#94a3b8; }
+
+  /* confetti canvas */
+  #confetti{ position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:999; }
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<header>
+  <h1>🎡 วงล้อสุ่มกองทุนต่างประเทศ</h1>
+  <p>5 กองทุนนอกยอดนิยม — กดหมุนเพื่อเลือก!</p>
+</header>
+
+<div class="arena">
+  <div class="pointer"></div>
+  <canvas id="wheel" width="340" height="340"></canvas>
+</div>
+
+<button class="spin-btn" id="spinBtn" onclick="spin()">🎰 หมุนเลย!</button>
+
+<div class="result-wrap" id="resultWrap">
+  <div class="result-card" id="resultCard"></div>
+</div>
+
+<div class="fund-list">
+  <h2>📋 กองทุนในวงล้อ</h2>
+  <div id="fundListItems"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  DATA — 5 Top Foreign Funds
+// ══════════════════════════════════════
+const FUNDS = [
+  {
+    code:'SCBNDQ',
+    name:'SCB Nasdaq-100 Index',
+    bmi:'ซีไอเอ็มบีไทย (SCB)',
+    color:'#6366f1',
+    emoji:'🇺🇸',
+    tags:['Nasdaq-100','US Tech','Passive Index'],
+    desc:'ลงทุนใน ETF ติดตามดัชนี Nasdaq-100 ประกอบด้วยบริษัทเทคโนโลยีชั้นนำของสหรัฐฯ เช่น Apple, Microsoft, NVIDIA, Amazon, Google',
+    ret1y:'+28.4%', risk:'สูง', minInvest:'500 บาท', policy:'100% US Equity'
+  },
+  {
+    code:'B-INNOTECH',
+    name:'Bualuang Innovation Technology',
+    bmi:'บัวหลวง (BBL)',
+    color:'#10b981',
+    emoji:'💡',
+    tags:['Global Tech','Innovation','Active'],
+    desc:'ลงทุนในกองทุน Franklin Technology ซึ่งเน้นบริษัทเทคโนโลยีและนวัตกรรมทั่วโลก ทั้ง Software, Fintech, Biotech, AI',
+    ret1y:'+22.1%', risk:'สูงมาก', minInvest:'500 บาท', policy:'Global Innovation'
+  },
+  {
+    code:'KFGTECH-A',
+    name:'KAsset Global Technology',
+    bmi:'กสิกรไทย (KBank)',
+    color:'#f59e0b',
+    emoji:'🌐',
+    tags:['Global Tech','Fidelity Funds','Active'],
+    desc:'ลงทุนใน Fidelity Global Technology Fund เน้นหุ้นเทคโนโลยีทั่วโลก ทั้งสหรัฐฯ ยุโรป และเอเชีย มีผลงานโดดเด่นระยะยาว',
+    ret1y:'+19.8%', risk:'สูงมาก', minInvest:'1,000 บาท', policy:'Global Technology'
+  },
+  {
+    code:'TMBGQG',
+    name:'TMB Global Quality Growth',
+    bmi:'ทีเอ็มบีธนชาต (ttb)',
+    color:'#ef4444',
+    emoji:'🏆',
+    tags:['Quality Growth','Global','Diversified'],
+    desc:'ลงทุนใน Fundsmith Equity Fund บริษัทคุณภาพสูงทั่วโลก เน้นธุรกิจที่มี Competitive Moat แข็งแกร่ง ผลตอบแทนสม่ำเสมอ',
+    ret1y:'+15.3%', risk:'สูง', minInvest:'1,000 บาท', policy:'Global Quality Stock'
+  },
+  {
+    code:'PRINCIPAL VGIF',
+    name:'Principal Vanguard Global Index',
+    bmi:'พรินซิเพิล',
+    color:'#8b5cf6',
+    emoji:'🌍',
+    tags:['Vanguard','Global Index','Low Cost'],
+    desc:'ลงทุนใน Vanguard Global Stock Index กระจายสินทรัพย์ทั่วโลกกว่า 7,000 บริษัท ค่าธรรมเนียมต่ำ เหมาะสร้างพอร์ตระยะยาว',
+    ret1y:'+17.6%', risk:'สูง', minInvest:'1,000 บาท', policy:'Global Passive Index'
+  }
+];
+
+// ══════════════════════════════════════
+//  DRAW WHEEL
+// ══════════════════════════════════════
+const canvas = document.getElementById('wheel');
+const ctx    = canvas.getContext('2d');
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+const R  = cx - 4;
+const N  = FUNDS.length;
+const ARC = (2 * Math.PI) / N;
+
+let currentAngle = 0;   // cumulative rotation (radians)
+let spinning = false;
+
+function drawWheel(rotation) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < N; i++) {
+    const start = rotation + i * ARC;
+    const end   = start + ARC;
+    const fund  = FUNDS[i];
+
+    // segment fill
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, start, end);
+    ctx.closePath();
+    ctx.fillStyle = fund.color;
+    ctx.fill();
+
+    // subtle lighter inner arc
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R * 0.98, start, end);
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // separator line
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + R * Math.cos(start), cy + R * Math.sin(start));
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + ARC / 2);
+    ctx.textAlign = 'right';
+
+    // emoji
+    ctx.font = '20px serif';
+    ctx.fillText(fund.emoji, R - 10, 6);
+
+    // code
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 13px Sarabun, Arial';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(fund.code, R - 38, -4);
+
+    // bmi short
+    ctx.font = '10px Sarabun, Arial';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText(fund.bmi.split('(')[0].trim(), R - 38, 12);
+
+    ctx.restore();
+  }
+
+  // center hub
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 34);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(1, '#d4af37');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 34, 0, 2 * Math.PI);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = '#1a1a2e';
+  ctx.font = 'bold 11px Sarabun, Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPIN', cx, cy + 4);
+}
+
+// ══════════════════════════════════════
+//  SPIN LOGIC
+// ══════════════════════════════════════
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('resultWrap').classList.remove('show');
+
+  // random extra rotations (5-9 full turns) + random landing offset
+  const extraTurns = (5 + Math.random() * 4) * 2 * Math.PI;
+  const landingOffset = Math.random() * 2 * Math.PI;
+  const totalRotation = extraTurns + landingOffset;
+
+  const startTime = performance.now();
+  const duration  = 4500 + Math.random() * 1500;  // 4.5–6s
+
+  function ease(t) {
+    // cubic ease-out
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const eased = ease(t);
+
+    currentAngle = eased * totalRotation;
+    drawWheel(currentAngle);
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      showResult(currentAngle);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function getWinner(rotation) {
+  // pointer is at top = -π/2; find which segment is at pointer
+  const normalised = ((rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const pointerAngle = (2 * Math.PI - normalised + (3 * Math.PI / 2)) % (2 * Math.PI);
+  const idx = Math.floor(pointerAngle / ARC) % N;
+  return FUNDS[idx];
+}
+
+function showResult(rotation) {
+  const fund = getWinner(rotation);
+
+  const card = document.getElementById('resultCard');
+  card.innerHTML = `
+    <div class="crown">🏅</div>
+    <div class="fund-code">${fund.emoji} ${fund.code}</div>
+    <div class="fund-full">${fund.name}</div>
+    <div class="tags">
+      ${fund.tags.map(t=>`<span class="tag">${t}</span>`).join('')}
+    </div>
+    <div class="desc">${fund.desc}</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="mval">${fund.ret1y}</div>
+        <div class="mlbl">ผลตอบแทน 1 ปี</div>
+      </div>
+      <div class="metric">
+        <div class="mval" style="color:#f87171">${fund.risk}</div>
+        <div class="mlbl">ระดับความเสี่ยง</div>
+      </div>
+      <div class="metric">
+        <div class="mval" style="color:#60a5fa">${fund.minInvest}</div>
+        <div class="mlbl">ลงทุนขั้นต่ำ</div>
+      </div>
+      <div class="metric">
+        <div class="mval" style="color:#c4b5fd;font-size:.95rem">${fund.policy}</div>
+        <div class="mlbl">นโยบายการลงทุน</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:.8rem;color:#64748b;">
+      ⚠️ ข้อมูลเพื่อการศึกษาเท่านั้น ผลตอบแทนในอดีตไม่ได้รับประกันอนาคต
+    </div>
+  `;
+
+  document.getElementById('resultWrap').classList.add('show');
+  launchConfetti(fund.color);
+}
+
+// ══════════════════════════════════════
+//  CONFETTI
+// ══════════════════════════════════════
+function launchConfetti(accentColor) {
+  const cc = document.getElementById('confetti');
+  cc.width  = window.innerWidth;
+  cc.height = window.innerHeight;
+  const cx2 = cc.getContext('2d');
+  const pieces = [];
+  const colors = ['#FFD700','#ffffff',accentColor,'#4ade80','#f87171','#60a5fa'];
+
+  for (let i = 0; i < 120; i++) {
+    pieces.push({
+      x: Math.random() * cc.width,
+      y: -20 - Math.random() * 200,
+      w: 8 + Math.random() * 10,
+      h: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 4,
+      vy: 2 + Math.random() * 4,
+      rot: Math.random() * 360,
+      rotv: (Math.random() - 0.5) * 6,
+    });
+  }
+
+  let frame = 0;
+  function drawConfetti() {
+    cx2.clearRect(0, 0, cc.width, cc.height);
+    pieces.forEach(p => {
+      cx2.save();
+      cx2.translate(p.x, p.y);
+      cx2.rotate(p.rot * Math.PI / 180);
+      cx2.fillStyle = p.color;
+      cx2.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      cx2.restore();
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy += 0.07;
+      p.rot += p.rotv;
+    });
+    frame++;
+    if (frame < 180) requestAnimationFrame(drawConfetti);
+    else cx2.clearRect(0, 0, cc.width, cc.height);
+  }
+  requestAnimationFrame(drawConfetti);
+}
+
+// ══════════════════════════════════════
+//  BUILD FUND LIST
+// ══════════════════════════════════════
+const listEl = document.getElementById('fundListItems');
+FUNDS.forEach(f => {
+  listEl.innerHTML += `
+    <div class="fund-item">
+      <div class="fund-dot" style="background:${f.color}"></div>
+      <div class="fund-item-info">
+        <div class="code">${f.emoji} ${f.code}</div>
+        <div class="name">${f.name} — ${f.bmi}</div>
+      </div>
+    </div>`;
+});
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+drawWheel(0);
+</script>
+</body>
+</html>
