@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>แบบสอบถามการสำรวจความคิดเห็น</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Sarabun', sans-serif; background: #f0f4f8; color: #222; }
+    header {
+      background: linear-gradient(135deg, #1F3864, #2E75B6);
+      color: white; text-align: center; padding: 36px 20px 24px;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 8px; }
+    header p { font-size: 1rem; opacity: 0.85; }
+    .badges { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .badge {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px; padding: 6px 16px; font-size: 0.95rem;
+    }
+    .container { max-width: 820px; margin: 32px auto; padding: 0 16px 48px; }
+    .section {
+      background: white; border-radius: 12px; margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+    }
+    .section-header {
+      background: #2E75B6; color: white;
+      padding: 12px 20px; font-size: 1.05rem; font-weight: bold;
+    }
+    .section-body { padding: 20px; }
+    .question { margin-bottom: 22px; }
+    .question:last-child { margin-bottom: 0; }
+    .question label { font-weight: bold; display: block; margin-bottom: 10px; color: #1F3864; }
+    .options { display: flex; flex-wrap: wrap; gap: 10px; }
+    .options label {
+      font-weight: normal; display: flex; align-items: center; gap: 6px;
+      background: #f5f8ff; border: 1px solid #d0dff5; border-radius: 8px;
+      padding: 8px 14px; cursor: pointer; color: #333;
+      transition: background 0.2s;
+    }
+    .options label:hover { background: #dbeafe; }
+    .options input[type=radio], .options input[type=checkbox] { accent-color: #2E75B6; }
+    .rating-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+    .rating-row span { min-width: 180px; color: #444; font-size: 0.95rem; }
+    .stars { display: flex; gap: 6px; }
+    .stars label {
+      background: #f0f4f8; border: 1px solid #cdd5e0; border-radius: 6px;
+      padding: 6px 12px; cursor: pointer; font-weight: normal; color: #333;
+      transition: background 0.2s;
+    }
+    .stars label:hover { background: #fde68a; }
+    .stars input { display: none; }
+    .stars input:checked + label { background: #fbbf24; border-color: #f59e0b; color: #7c2d12; font-weight: bold; }
+    textarea {
+      width: 100%; border: 1px solid #d0dff5; border-radius: 8px;
+      padding: 10px 14px; font-family: inherit; font-size: 1rem;
+      resize: vertical; min-height: 80px; color: #333;
+    }
+    .download-bar {
+      background: #e8f0fe; border-radius: 10px; padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .download-bar span { font-size: 0.95rem; color: #1F3864; }
+    .btn-download {
+      background: #1F3864; color: white; border: none; border-radius: 8px;
+      padding: 10px 22px; font-size: 1rem; cursor: pointer; text-decoration: none;
+      display: inline-block; font-family: inherit;
+    }
+    .btn-download:hover { background: #2E75B6; }
+    .btn-submit {
+      display: block; width: 100%; background: linear-gradient(135deg,#1F3864,#2E75B6);
+      color: white; border: none; border-radius: 10px;
+      padding: 14px; font-size: 1.1rem; cursor: pointer; font-family: inherit;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { opacity: 0.92; }
+    .note { text-align: center; color: #888; font-size: 0.88rem; margin-top: 12px; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<header>
+  <h1>📋 แบบสอบถามการสำรวจความคิดเห็น</h1>
+  <p>เรื่อง : ควรขายอะไรดีกว่ากัน?</p>
+  <div class="badges">
+    <span class="badge">🍺 เครื่องดื่ม</span>
+    <span class="badge">🍜 ก๋วยเตี๋ยว</span>
+    <span class="badge">🍲 อาหารตามสั่ง</span>
+    <span class="badge">📦 อื่นๆ</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Download -->
+  <div class="download-bar">
+    <span>📥 ดาวน์โหลดแบบสอบถามเป็นไฟล์ Word เพื่อพิมพ์แจก</span>
+    <a class="btn-download" href="แบบสอบถาม_การขายอาหาร.docx" download>ดาวน์โหลด .docx</a>
+  </div>
+
+  <form id="survey">
+
+    <!-- ส่วนที่ 1 -->
+    <div class="section">
+      <div class="section-header">ส่วนที่ 1 : ข้อมูลทั่วไปของผู้ตอบแบบสอบถาม</div>
+      <div class="section-body">
+
+        <div class="question">
+          <label>ข้อ 1. เพศ</label>
+          <div class="options">
+            <label><input type="radio" name="q1" value="ชาย"/> ชาย</label>
+            <label><input type="radio" name="q1" value="หญิง"/> หญิง</label>
+            <label><input type="radio" name="q1" value="อื่นๆ"/> อื่นๆ / ไม่ระบุ</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 2. อายุ</label>
+          <div class="options">
+            <label><input type="radio" name="q2" value="<20"/> ต่ำกว่า 20 ปี</label>
+            <label><input type="radio" name="q2" value="20-30"/> 20–30 ปี</label>
+            <label><input type="radio" name="q2" value="31-40"/> 31–40 ปี</label>
+            <label><input type="radio" name="q2" value="41-50"/> 41–50 ปี</label>
+            <label><input type="radio" name="q2" value=">50"/> มากกว่า 50 ปี</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 3. อาชีพปัจจุบัน</label>
+          <div class="options">
+            <label><input type="radio" name="q3" value="นักเรียน"/> นักเรียน/นักศึกษา</label>
+            <label><input type="radio" name="q3" value="พนักงาน"/> พนักงานบริษัท</label>
+            <label><input type="radio" name="q3" value="ราชการ"/> ข้าราชการ</label>
+            <label><input type="radio" name="q3" value="ค้าขาย"/> ค้าขาย / ธุรกิจส่วนตัว</label>
+            <label><input type="radio" name="q3" value="อื่นๆ"/> อื่นๆ</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 4. รายได้เฉลี่ยต่อเดือน</label>
+          <div class="options">
+            <label><input type="radio" name="q4" value="<10k"/> น้อยกว่า 10,000 บาท</label>
+            <label><input type="radio" name="q4" value="10-20k"/> 10,001–20,000 บาท</label>
+            <label><input type="radio" name="q4" value="20-30k"/> 20,001–30,000 บาท</label>
+            <label><input type="radio" name="q4" value=">30k"/> มากกว่า 30,000 บาท</label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 2 -->
+    <div class="section">
+      <div class="section-header">ส่วนที่ 2 : พฤติกรรมการซื้ออาหารและเครื่องดื่ม</div>
+      <div class="section-body">
+
+        <div class="question">
+          <label>ข้อ 5. ท่านซื้ออาหารนอกบ้านบ่อยแค่ไหน?</label>
+          <div class="options">
+            <label><input type="radio" name="q5" value="ทุกวัน"/> ทุกวัน</label>
+            <label><input type="radio" name="q5" value="4-6วัน"/> 4–6 วัน/สัปดาห์</label>
+            <label><input type="radio" name="q5" value="2-3วัน"/> 2–3 วัน/สัปดาห์</label>
+            <label><input type="radio" name="q5" value="สัปดาห์ละครั้ง"/> สัปดาห์ละครั้ง</label>
+            <label><input type="radio" name="q5" value="น้อยกว่า"/> น้อยกว่าสัปดาห์ละครั้ง</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 6. มื้อที่นิยมซื้อมากที่สุด (เลือกได้มากกว่า 1)</label>
+          <div class="options">
+            <label><input type="checkbox" name="q6" value="เช้า"/> เช้า</label>
+            <label><input type="checkbox" name="q6" value="กลางวัน"/> กลางวัน</label>
+            <label><input type="checkbox" name="q6" value="เย็น"/> เย็น/ค่ำ</label>
+            <label><input type="checkbox" name="q6" value="ของว่าง"/> ของว่างระหว่างวัน</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 7. งบประมาณเฉลี่ยต่อมื้อ/ครั้ง</label>
+          <div class="options">
+            <label><input type="radio" name="q7" value="<50"/> น้อยกว่า 50 บาท</label>
+            <label><input type="radio" name="q7" value="50-100"/> 50–100 บาท</label>
+            <label><input type="radio" name="q7" value="101-150"/> 101–150 บาท</label>
+            <label><input type="radio" name="q7" value="151-200"/> 151–200 บาท</label>
+            <label><input type="radio" name="q7" value=">200"/> มากกว่า 200 บาท</label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 3 -->
+    <div class="section">
+      <div class="section-header">ส่วนที่ 3 : ความสนใจในแต่ละประเภทอาหาร (1 = น้อยสุด, 5 = มากสุด)</div>
+      <div class="section-body">
+
+        <div class="question">
+          <label>ข้อ 8. 🍺 เครื่องดื่ม</label>
+          <div class="rating-row"><span>ความสนใจซื้อ</span><div class="stars">
+            <input type="radio" id="d1-1" name="d1_interest" value="1"/><label for="d1-1">1</label>
+            <input type="radio" id="d1-2" name="d1_interest" value="2"/><label for="d1-2">2</label>
+            <input type="radio" id="d1-3" name="d1_interest" value="3"/><label for="d1-3">3</label>
+            <input type="radio" id="d1-4" name="d1_interest" value="4"/><label for="d1-4">4</label>
+            <input type="radio" id="d1-5" name="d1_interest" value="5"/><label for="d1-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ความคุ้มค่าราคา</span><div class="stars">
+            <input type="radio" id="d1p-1" name="d1_price" value="1"/><label for="d1p-1">1</label>
+            <input type="radio" id="d1p-2" name="d1_price" value="2"/><label for="d1p-2">2</label>
+            <input type="radio" id="d1p-3" name="d1_price" value="3"/><label for="d1p-3">3</label>
+            <input type="radio" id="d1p-4" name="d1_price" value="4"/><label for="d1p-4">4</label>
+            <input type="radio" id="d1p-5" name="d1_price" value="5"/><label for="d1p-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ศักยภาพทำกำไร</span><div class="stars">
+            <input type="radio" id="d1g-1" name="d1_profit" value="1"/><label for="d1g-1">1</label>
+            <input type="radio" id="d1g-2" name="d1_profit" value="2"/><label for="d1g-2">2</label>
+            <input type="radio" id="d1g-3" name="d1_profit" value="3"/><label for="d1g-3">3</label>
+            <input type="radio" id="d1g-4" name="d1_profit" value="4"/><label for="d1g-4">4</label>
+            <input type="radio" id="d1g-5" name="d1_profit" value="5"/><label for="d1g-5">5</label>
+          </div></div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 9. 🍜 ก๋วยเตี๋ยว</label>
+          <div class="rating-row"><span>ความสนใจซื้อ</span><div class="stars">
+            <input type="radio" id="n1-1" name="n1_interest" value="1"/><label for="n1-1">1</label>
+            <input type="radio" id="n1-2" name="n1_interest" value="2"/><label for="n1-2">2</label>
+            <input type="radio" id="n1-3" name="n1_interest" value="3"/><label for="n1-3">3</label>
+            <input type="radio" id="n1-4" name="n1_interest" value="4"/><label for="n1-4">4</label>
+            <input type="radio" id="n1-5" name="n1_interest" value="5"/><label for="n1-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ความคุ้มค่าราคา</span><div class="stars">
+            <input type="radio" id="n1p-1" name="n1_price" value="1"/><label for="n1p-1">1</label>
+            <input type="radio" id="n1p-2" name="n1_price" value="2"/><label for="n1p-2">2</label>
+            <input type="radio" id="n1p-3" name="n1_price" value="3"/><label for="n1p-3">3</label>
+            <input type="radio" id="n1p-4" name="n1_price" value="4"/><label for="n1p-4">4</label>
+            <input type="radio" id="n1p-5" name="n1_price" value="5"/><label for="n1p-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ศักยภาพทำกำไร</span><div class="stars">
+            <input type="radio" id="n1g-1" name="n1_profit" value="1"/><label for="n1g-1">1</label>
+            <input type="radio" id="n1g-2" name="n1_profit" value="2"/><label for="n1g-2">2</label>
+            <input type="radio" id="n1g-3" name="n1_profit" value="3"/><label for="n1g-3">3</label>
+            <input type="radio" id="n1g-4" name="n1_profit" value="4"/><label for="n1g-4">4</label>
+            <input type="radio" id="n1g-5" name="n1_profit" value="5"/><label for="n1g-5">5</label>
+          </div></div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 10. 🍲 อาหารตามสั่ง</label>
+          <div class="rating-row"><span>ความสนใจซื้อ</span><div class="stars">
+            <input type="radio" id="f1-1" name="f1_interest" value="1"/><label for="f1-1">1</label>
+            <input type="radio" id="f1-2" name="f1_interest" value="2"/><label for="f1-2">2</label>
+            <input type="radio" id="f1-3" name="f1_interest" value="3"/><label for="f1-3">3</label>
+            <input type="radio" id="f1-4" name="f1_interest" value="4"/><label for="f1-4">4</label>
+            <input type="radio" id="f1-5" name="f1_interest" value="5"/><label for="f1-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ความคุ้มค่าราคา</span><div class="stars">
+            <input type="radio" id="f1p-1" name="f1_price" value="1"/><label for="f1p-1">1</label>
+            <input type="radio" id="f1p-2" name="f1_price" value="2"/><label for="f1p-2">2</label>
+            <input type="radio" id="f1p-3" name="f1_price" value="3"/><label for="f1p-3">3</label>
+            <input type="radio" id="f1p-4" name="f1_price" value="4"/><label for="f1p-4">4</label>
+            <input type="radio" id="f1p-5" name="f1_price" value="5"/><label for="f1p-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ศักยภาพทำกำไร</span><div class="stars">
+            <input type="radio" id="f1g-1" name="f1_profit" value="1"/><label for="f1g-1">1</label>
+            <input type="radio" id="f1g-2" name="f1_profit" value="2"/><label for="f1g-2">2</label>
+            <input type="radio" id="f1g-3" name="f1_profit" value="3"/><label for="f1g-3">3</label>
+            <input type="radio" id="f1g-4" name="f1_profit" value="4"/><label for="f1g-4">4</label>
+            <input type="radio" id="f1g-5" name="f1_profit" value="5"/><label for="f1g-5">5</label>
+          </div></div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 11. 📦 อื่นๆ</label>
+          <div class="rating-row"><span>ความสนใจซื้อ</span><div class="stars">
+            <input type="radio" id="o1-1" name="o1_interest" value="1"/><label for="o1-1">1</label>
+            <input type="radio" id="o1-2" name="o1_interest" value="2"/><label for="o1-2">2</label>
+            <input type="radio" id="o1-3" name="o1_interest" value="3"/><label for="o1-3">3</label>
+            <input type="radio" id="o1-4" name="o1_interest" value="4"/><label for="o1-4">4</label>
+            <input type="radio" id="o1-5" name="o1_interest" value="5"/><label for="o1-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ความคุ้มค่าราคา</span><div class="stars">
+            <input type="radio" id="o1p-1" name="o1_price" value="1"/><label for="o1p-1">1</label>
+            <input type="radio" id="o1p-2" name="o1_price" value="2"/><label for="o1p-2">2</label>
+            <input type="radio" id="o1p-3" name="o1_price" value="3"/><label for="o1p-3">3</label>
+            <input type="radio" id="o1p-4" name="o1_price" value="4"/><label for="o1p-4">4</label>
+            <input type="radio" id="o1p-5" name="o1_price" value="5"/><label for="o1p-5">5</label>
+          </div></div>
+          <div class="rating-row"><span>ศักยภาพทำกำไร</span><div class="stars">
+            <input type="radio" id="o1g-1" name="o1_profit" value="1"/><label for="o1g-1">1</label>
+            <input type="radio" id="o1g-2" name="o1_profit" value="2"/><label for="o1g-2">2</label>
+            <input type="radio" id="o1g-3" name="o1_profit" value="3"/><label for="o1g-3">3</label>
+            <input type="radio" id="o1g-4" name="o1_profit" value="4"/><label for="o1g-4">4</label>
+            <input type="radio" id="o1g-5" name="o1_profit" value="5"/><label for="o1g-5">5</label>
+          </div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 4 -->
+    <div class="section">
+      <div class="section-header">ส่วนที่ 4 : ปัจจัยที่มีผลต่อการตัดสินใจซื้อ</div>
+      <div class="section-body">
+
+        <div class="question">
+          <label>ข้อ 12. ปัจจัยหลักที่ใช้ตัดสินใจ (เลือกได้มากกว่า 1)</label>
+          <div class="options">
+            <label><input type="checkbox" name="q12" value="ราคา"/> ราคา</label>
+            <label><input type="checkbox" name="q12" value="รสชาติ"/> รสชาติ</label>
+            <label><input type="checkbox" name="q12" value="ความสะอาด"/> ความสะอาด</label>
+            <label><input type="checkbox" name="q12" value="ทำเล"/> ทำเลที่ตั้ง</label>
+            <label><input type="checkbox" name="q12" value="ปริมาณ"/> ปริมาณ/ความอิ่ม</label>
+            <label><input type="checkbox" name="q12" value="เมนู"/> ความหลากหลายเมนู</label>
+            <label><input type="checkbox" name="q12" value="รวดเร็ว"/> ความรวดเร็ว</label>
+            <label><input type="checkbox" name="q12" value="บรรยากาศ"/> บรรยากาศร้าน</label>
+            <label><input type="checkbox" name="q12" value="รีวิว"/> รีวิว/คำแนะนำ</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 13. ประเภทใดขายดีที่สุดในพื้นที่ของท่าน?</label>
+          <div class="options">
+            <label><input type="radio" name="q13" value="เครื่องดื่ม"/> เครื่องดื่ม</label>
+            <label><input type="radio" name="q13" value="ก๋วยเตี๋ยว"/> ก๋วยเตี๋ยว</label>
+            <label><input type="radio" name="q13" value="อาหารตามสั่ง"/> อาหารตามสั่ง</label>
+            <label><input type="radio" name="q13" value="อื่นๆ"/> อื่นๆ</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 14. ประเภทใดมีต้นทุนเริ่มต้นต่ำที่สุด?</label>
+          <div class="options">
+            <label><input type="radio" name="q14" value="เครื่องดื่ม"/> เครื่องดื่ม</label>
+            <label><input type="radio" name="q14" value="ก๋วยเตี๋ยว"/> ก๋วยเตี๋ยว</label>
+            <label><input type="radio" name="q14" value="อาหารตามสั่ง"/> อาหารตามสั่ง</label>
+            <label><input type="radio" name="q14" value="อื่นๆ"/> อื่นๆ</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 15. ประเภทใดทำกำไรได้มากที่สุด?</label>
+          <div class="options">
+            <label><input type="radio" name="q15" value="เครื่องดื่ม"/> เครื่องดื่ม</label>
+            <label><input type="radio" name="q15" value="ก๋วยเตี๋ยว"/> ก๋วยเตี๋ยว</label>
+            <label><input type="radio" name="q15" value="อาหารตามสั่ง"/> อาหารตามสั่ง</label>
+            <label><input type="radio" name="q15" value="อื่นๆ"/> อื่นๆ</label>
+          </div>
+        </div>
+
+        <div class="question">
+          <label>ข้อ 16. ถ้าต้องเลือกขายเพียง 1 ประเภท ท่านจะเลือกอะไร?</label>
+          <div class="options">
+            <label><input type="radio" name="q16" value="เครื่องดื่ม"/> เครื่องดื่ม</label>
+            <label><input type="radio" name="q16" value="ก๋วยเตี๋ยว"/> ก๋วยเตี๋ยว</label>
+            <label><input type="radio" name="q16" value="อาหารตามสั่ง"/> อาหารตามสั่ง</label>
+            <label><input type="radio" name="q16" value="อื่นๆ"/> อื่นๆ</label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 5 -->
+    <div class="section">
+      <div class="section-header">ส่วนที่ 5 : ข้อเสนอแนะและความคิดเห็นเพิ่มเติม</div>
+      <div class="section-body">
+        <div class="question">
+          <label>ข้อ 17. สิ่งที่ทำให้ร้านอาหาร/เครื่องดื่มประสบความสำเร็จ คืออะไร?</label>
+          <textarea name="q17" placeholder="กรอกข้อความที่นี่..."></textarea>
+        </div>
+        <div class="question">
+          <label>ข้อ 18. ข้อเสนอแนะหรือความเห็นอื่นๆ</label>
+          <textarea name="q18" placeholder="กรอกข้อความที่นี่..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">✅ ส่งแบบสอบถาม</button>
+        <p class="note">ข้อมูลของท่านจะถูกเก็บเป็นความลับและใช้เพื่อการวิจัยเท่านั้น</p>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  document.getElementById('survey').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('ขอบคุณสำหรับการตอบแบบสอบถาม! 🙏');
+    this.reset();
+  });
+</script>
+</body>
+</html>
